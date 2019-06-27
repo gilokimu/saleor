@@ -5,20 +5,23 @@ import { UserError } from "@saleor/types";
 import { toggle } from "@saleor/utils/lists";
 import useStateFromProps from "./useStateFromProps";
 
-interface ChangeEvent<T> {
+export interface ChangeEvent<T> {
   target: {
     name: keyof T | string;
     value: any;
   };
 }
 
+export type FormChange = (event: ChangeEvent<T>, cb?: () => void) => void;
+
 export interface UseFormResult<T> {
-  change: (event: ChangeEvent<T>, cb?: () => void) => void;
+  change: FormChange;
   data: T;
   errors: Record<string, string>;
   hasChanged: boolean;
   reset: () => void;
   submit: () => void;
+  triggerChange: () => void;
   toggleValue: (event: ChangeEvent<T>) => void;
 }
 
@@ -82,6 +85,10 @@ function useForm<T extends Record<keyof T, any | any[]>>(
     return onSubmit(data);
   }
 
+  function triggerChange() {
+    setChanged(true);
+  }
+
   return {
     change,
     data,
@@ -89,7 +96,8 @@ function useForm<T extends Record<keyof T, any | any[]>>(
     hasChanged,
     reset,
     submit,
-    toggleValue
+    toggleValue,
+    triggerChange
   };
 }
 
