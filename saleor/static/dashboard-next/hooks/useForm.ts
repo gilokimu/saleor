@@ -5,24 +5,24 @@ import { UserError } from "@saleor/types";
 import { toggle } from "@saleor/utils/lists";
 import useStateFromProps from "./useStateFromProps";
 
-export interface ChangeEvent<T> {
+export interface ChangeEvent {
   target: {
-    name: keyof T | string;
+    name: string;
     value: any;
   };
 }
 
-export type FormChange<T> = (event: ChangeEvent<T>, cb?: () => void) => void;
+export type FormChange = (event: ChangeEvent, cb?: () => void) => void;
 
 export interface UseFormResult<T> {
-  change: FormChange<T>;
+  change: FormChange;
   data: T;
   errors: Record<string, string>;
   hasChanged: boolean;
   reset: () => void;
   submit: () => void;
   triggerChange: () => void;
-  toggleValue: (event: ChangeEvent<T>) => void;
+  toggleValue: FormChange;
 }
 
 function parseErrors(errors: UserError[]): Record<string, string> {
@@ -45,19 +45,26 @@ function useForm<T extends Record<keyof T, any | any[]>>(
   const [data, setData] = useStateFromProps(initial);
   const [hasChanged, setChanged] = useState(false);
 
-  function toggleValue(event: ChangeEvent<T>) {
+  function toggleValue(event: ChangeEvent, cb?: () => void) {
     const { name, value } = event.target;
     const field = data[name as keyof T];
 
     if (Array.isArray(field)) {
+      if (!hasChanged) {
+        setChanged(true);
+      }
       setData({
         ...data,
         [name]: toggle(value, field, isEqual)
       });
     }
+
+    if (typeof cb === "function") {
+      cb();
+    }
   }
 
-  function change(event: ChangeEvent<T>, cb?: () => void) {
+  function change(event: ChangeEvent, cb?: () => void) {
     const { name, value } = event.target;
 
     if (!(name in data)) {
