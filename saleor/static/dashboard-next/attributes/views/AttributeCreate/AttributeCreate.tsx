@@ -112,7 +112,7 @@ const AttributeDetails: React.FC<AttributeDetailsProps> = ({ params }) => {
               onValueUpdate={id => openModal("edit-value", id)}
               saveButtonBarState={createTransitionState}
               values={values.map((value, valueIndex) => ({
-                __typename: "AttributeValue",
+                __typename: "AttributeValue" as "AttributeValue",
                 id: valueIndex.toString(),
                 sortOrder: null,
                 type: null,
@@ -132,6 +132,7 @@ const AttributeDetails: React.FC<AttributeDetailsProps> = ({ params }) => {
             {values.length && (
               <>
                 <AttributeValueDeleteDialog
+                  attributeName={undefined}
                   open={params.action === "remove-value"}
                   name={maybe(() => values[id].name)}
                   confirmButtonState="default"
